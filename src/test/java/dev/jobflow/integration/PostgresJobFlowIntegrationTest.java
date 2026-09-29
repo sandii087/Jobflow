@@ -66,4 +66,13 @@ class PostgresJobFlowIntegrationTest {
       assertEquals(6, jobRepository.countByStatus(JobStatus.PROCESSING));
     } finally { workers.shutdownNow(); }
   }
+
+  @Test void expiredLeaseIsRecoveredForRetry() throws Exception {
+    AppUser user = users.save(new AppUser("recovery@example.test", "not-a-real-password-hash", Role.USER));
+    Job queued = jobs.create(user.getId(), new CreateJobRequest(JobType.DATA_PROCESSING,
+        json.readTree("{\"name\":\"recovery\"}"), JobPriority.LOW, 2), "recovery-key");
+    assertEquals(queued.getId(), jobs.claimNext(Duration.ofSeconds(-1)).orElseThrow().getId());
+    assertEquals(1, jobs.recoverExpired().size());
+    assertEquals(JobStatus.RETRY_WAIT, jobRepository.findById(queued.getId()).orElseThrow().getStatus());
+  }
 }
