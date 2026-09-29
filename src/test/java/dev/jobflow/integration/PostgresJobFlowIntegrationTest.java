@@ -11,6 +11,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -34,7 +35,14 @@ class PostgresJobFlowIntegrationTest {
   @Autowired private JobService jobs;
   @Autowired private UserRepository users;
   @Autowired private JobRepository jobRepository;
+  @Autowired private JobAttemptRepository attempts;
   @Autowired private ObjectMapper json;
+
+  @BeforeEach void cleanDatabase() {
+    attempts.deleteAll();
+    jobRepository.deleteAll();
+    users.deleteAll();
+  }
 
   @Test void flywayMigrationsAndConcurrentIdempotencyProduceOneJob() throws Exception {
     AppUser user = users.save(new AppUser("concurrent@example.test", "not-a-real-password-hash", Role.USER));
@@ -46,7 +54,7 @@ class PostgresJobFlowIntegrationTest {
       Set<UUID> ids = new HashSet<>();
       for (Future<UUID> result : results) ids.add(result.get());
       assertEquals(1, ids.size());
-      assertEquals(1, jobRepository.count());
+      assertEquals(1, jobRepository.countByOwnerId(user.getId()));
     } finally { workers.shutdownNow(); }
   }
 
@@ -63,7 +71,7 @@ class PostgresJobFlowIntegrationTest {
       Set<UUID> ids = new HashSet<>();
       for (Future<Optional<Job>> claim : claims) ids.add(claim.get().orElseThrow().getId());
       assertEquals(6, ids.size());
-      assertEquals(6, jobRepository.countByStatus(JobStatus.PROCESSING));
+      assertEquals(6, jobRepository.countByOwnerIdAndStatus(user.getId(), JobStatus.PROCESSING));
     } finally { workers.shutdownNow(); }
   }
 
