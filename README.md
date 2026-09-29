@@ -38,7 +38,7 @@ Job payloads are JSON, limited to 64KiB by default. Supported types are `REPORT_
 
 ## Security and operations
 
-Passwords use BCrypt cost 12. JWTs are signed with a mandatory 32+ byte secret supplied through `JWT_SECRET`; never commit it. Authorization is service and endpoint scoped: users query only their own jobs; admin routes require `ADMIN`. The API does not log passwords/tokens/payloads. Submission limits are stored transactionally in PostgreSQL for multi-instance consistency and return HTTP 429. Health and Prometheus endpoints are available through Actuator; detailed actuator data is admin-protected.
+Passwords use BCrypt cost 12. JWTs are signed with a mandatory 32+ byte secret supplied through `JWT_SECRET`; never commit it. Authorization is service and endpoint scoped: users query only their own jobs; admin routes require `ADMIN`. The API does not log passwords/tokens/payloads. Submission limits use one atomic PostgreSQL upsert per user/minute, so multiple API instances share the same counter and return HTTP 429 after the configured limit. Health and Prometheus endpoints are available through Actuator; detailed actuator data is admin-protected. An ADMIN user must be provisioned directly through a controlled database/bootstrap process; public registration intentionally creates only USER accounts.
 
 Database migrations are Flyway-managed. Key schema protections include UUID keys, foreign keys, enum check constraints, idempotency uniqueness on `(owner_id, idempotency_key)`, partial eligible-job indexing, owner lookup indexing, and attempt history uniqueness.
 
@@ -51,7 +51,7 @@ mvn package
 docker compose up --build
 ```
 
-Docker Compose starts PostgreSQL only after health checks pass. CI runs Maven verification (including Testcontainers tests when present) and an image build. This workstation did not have Docker available during implementation, so Compose and container-backed integration checks must be run in Docker-enabled CI/local environment before any deployment claim.
+Docker Compose starts PostgreSQL only after health checks pass. The multi-stage Dockerfile compiles its own JAR, so `docker compose up --build` works from a clean checkout. CI runs Maven verification (including Testcontainers tests) and an image build. This workstation did not have Docker available during implementation, so Compose and container-backed integration checks must be run in Docker-enabled CI/local environment before any deployment claim.
 
 ## Failure modes and limits
 

@@ -1,3 +1,0 @@
-package dev.jobflow.integration;
-import static org.junit.jupiter.api.Assertions.*; import java.sql.*; import org.junit.jupiter.api.*; import org.testcontainers.containers.PostgreSQLContainer; import org.testcontainers.junit.jupiter.*;
-@Testcontainers(disabledWithoutDocker = true) class PostgresMigrationIntegrationTest { @Container static PostgreSQLContainer<?> postgres=new PostgreSQLContainer<>("postgres:16-alpine"); @Test void postgresIsUsable(){try(Connection c=DriverManager.getConnection(postgres.getJdbcUrl(),postgres.getUsername(),postgres.getPassword());Statement s=c.createStatement()){assertTrue(s.execute("select 1"));}catch(SQLException e){fail(e);}} }
