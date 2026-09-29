@@ -1,0 +1,16 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    # Render supplies managed database connection components; no production values are committed.
+    url: jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT:5432}/${DATABASE_NAME}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+server:
+  forward-headers-strategy: framework

@@ -53,6 +53,12 @@ docker compose up --build
 
 Docker Compose starts PostgreSQL only after health checks pass. The multi-stage Dockerfile compiles its own JAR, so `docker compose up --build` works from a clean checkout. CI runs Maven verification (including Testcontainers tests) and an image build. This workstation did not have Docker available during implementation, so Compose and container-backed integration checks must be run in Docker-enabled CI/local environment before any deployment claim.
 
+## Deployment
+
+`render.yaml` is a reproducible Render Blueprint: it provisions a managed PostgreSQL database plus two Docker services. `jobflow-api` is the public HTTP API with workers disabled, and `jobflow-worker` runs the same image with workers enabled; both use the same database-backed queue. The Blueprint supplies database connection components as provider-managed environment variables and has Render generate the JWT signing secret—no production secret belongs in Git.
+
+To deploy, import the repository through the [Render Blueprint flow](https://dashboard.render.com/blueprint/new?repo=https://github.com/sandii087/Jobflow), review the proposed resources and costs, and apply it. Render runs Flyway on application startup; use `/actuator/health/readiness` as the API health check. A rollback means redeploying a previously known-good Git commit; Flyway migrations are forward-only, while in-flight jobs are recovered by expired leases. This workspace has not authenticated to Render and has no Docker daemon, so neither a cloud deployment nor Compose execution is claimed as verified.
+
 ## Failure modes and limits
 
 Database outage makes submission and claiming unavailable; jobs remain durable once committed. There is no independent broker, so no broker outage mode. An API crash before commit creates no job; after commit, idempotency safely returns the existing job. A worker crash triggers lease recovery. Long tasks must finish within the configured lease or add executor heartbeats/lease renewal (not yet implemented). Rate-limit buckets have no cleanup job yet. For 100K+/high-throughput workloads, add partitioning, cleanup/archival, per-type pools, lease heartbeats, and evaluate an outbox plus dedicated broker. Multi-region needs a single writer region or explicit conflict/routing strategy.

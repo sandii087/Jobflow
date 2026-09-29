@@ -1,0 +1,65 @@
+services:
+  - type: web
+    name: jobflow-api
+    runtime: docker
+    plan: free
+    region: singapore
+    branch: main
+    autoDeploy: true
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /actuator/health/readiness
+    envVars:
+      - fromGroup: jobflow-production
+      - key: WORKER_ENABLED
+        value: "false"
+  - type: worker
+    name: jobflow-worker
+    runtime: docker
+    plan: free
+    region: singapore
+    branch: main
+    autoDeploy: true
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - fromGroup: jobflow-production
+      - key: WORKER_ENABLED
+        value: "true"
+
+envVarGroups:
+  - name: jobflow-production
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_HOST
+        fromDatabase:
+          name: jobflow-postgres
+          property: host
+      - key: DATABASE_PORT
+        fromDatabase:
+          name: jobflow-postgres
+          property: port
+      - key: DATABASE_NAME
+        fromDatabase:
+          name: jobflow-postgres
+          property: database
+      - key: DATABASE_USERNAME
+        fromDatabase:
+          name: jobflow-postgres
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: jobflow-postgres
+          property: password
+
+databases:
+  - name: jobflow-postgres
+    databaseName: jobflow
+    user: jobflow
+    plan: free
+    region: singapore
+    postgresMajorVersion: "16"
+    ipAllowList: []

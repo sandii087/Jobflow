@@ -4,7 +4,7 @@ spring:
   jpa: { open-in-view: false, hibernate: { ddl-auto: validate } }
   flyway: { enabled: true }
   jackson: { default-property-inclusion: non_null }
-server: { max-http-request-header-size: 16KB }
+server: { port: ${PORT:8080}, max-http-request-header-size: 16KB }
 jobflow:
   jwt-secret: ${JWT_SECRET}
   jwt-expiry: PT8H
