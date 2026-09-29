@@ -1,0 +1,2 @@
+package dev.jobflow.domain; import static org.junit.jupiter.api.Assertions.*; import org.junit.jupiter.api.Test;
+class JobStateMachineTest { @Test void allowsValidTransition(){assertDoesNotThrow(()->JobStateMachine.require(JobStatus.QUEUED,JobStatus.PROCESSING));} @Test void rejectsInvalidTransition(){assertThrows(IllegalStateException.class,()->JobStateMachine.require(JobStatus.COMPLETED,JobStatus.PROCESSING));} }

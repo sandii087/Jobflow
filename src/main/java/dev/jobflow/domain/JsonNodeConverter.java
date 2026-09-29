@@ -1,0 +1,3 @@
+package dev.jobflow.domain;
+import com.fasterxml.jackson.databind.JsonNode; import com.fasterxml.jackson.databind.ObjectMapper; import jakarta.persistence.AttributeConverter; import jakarta.persistence.Converter;
+@Converter public class JsonNodeConverter implements AttributeConverter<JsonNode,String>{ private static final ObjectMapper M=new ObjectMapper(); public String convertToDatabaseColumn(JsonNode n){return n==null?null:n.toString();} public JsonNode convertToEntityAttribute(String v){try{return v==null?null:M.readTree(v);}catch(Exception e){throw new IllegalArgumentException("Invalid JSON",e);}} }

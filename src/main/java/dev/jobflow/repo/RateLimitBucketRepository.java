@@ -1,0 +1,2 @@
+package dev.jobflow.repo; import jakarta.persistence.LockModeType; import java.time.Instant; import java.util.*; import org.springframework.data.jpa.repository.*; import org.springframework.data.repository.query.Param;
+public interface RateLimitBucketRepository extends JpaRepository<RateLimitBucket,RateLimitBucketId>{@Lock(LockModeType.PESSIMISTIC_WRITE) @Query("select b from RateLimitBucket b where b.subject=:subject and b.windowStart=:window") Optional<RateLimitBucket> lock(@Param("subject")String subject,@Param("window")Instant window);}

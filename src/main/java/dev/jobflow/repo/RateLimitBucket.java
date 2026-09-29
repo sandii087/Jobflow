@@ -1,0 +1,2 @@
+package dev.jobflow.repo; import jakarta.persistence.*; import java.time.Instant;
+@Entity @Table(name="rate_limit_buckets") @IdClass(RateLimitBucketId.class) public class RateLimitBucket { @Id private String subject; @Id @Column(name="window_start") private Instant windowStart; @Column(name="request_count") private int requestCount; protected RateLimitBucket(){} public RateLimitBucket(String s,Instant w){subject=s;windowStart=w;requestCount=0;} public int increment(){return ++requestCount;} }

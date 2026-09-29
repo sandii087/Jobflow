@@ -1,0 +1,2 @@
+package dev.jobflow.service; import java.time.*; import org.springframework.beans.factory.annotation.Value; import org.springframework.stereotype.Component;
+@Component public class RetryPolicy {private final Duration initial,max;public RetryPolicy(@Value("${jobflow.retry.initial-delay}")Duration i,@Value("${jobflow.retry.max-delay}")Duration m){initial=i;max=m;} public Duration delayFor(int attempts){long multiplier=1L<<Math.min(30,Math.max(0,attempts-1));Duration d=initial.multipliedBy(multiplier);return d.compareTo(max)>0?max:d;}}

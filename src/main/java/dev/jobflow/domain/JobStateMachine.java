@@ -1,0 +1,3 @@
+package dev.jobflow.domain;
+import java.util.*;
+public final class JobStateMachine { private static final Map<JobStatus,Set<JobStatus>> ALLOWED=Map.of(JobStatus.QUEUED,Set.of(JobStatus.PROCESSING,JobStatus.CANCELLED),JobStatus.RETRY_WAIT,Set.of(JobStatus.PROCESSING,JobStatus.CANCELLED),JobStatus.PROCESSING,Set.of(JobStatus.COMPLETED,JobStatus.RETRY_WAIT,JobStatus.DEAD_LETTER),JobStatus.DEAD_LETTER,Set.of(JobStatus.QUEUED),JobStatus.COMPLETED,Set.of(),JobStatus.FAILED,Set.of(),JobStatus.CANCELLED,Set.of()); private JobStateMachine(){} public static void require(JobStatus from,JobStatus to){if(!ALLOWED.getOrDefault(from,Set.of()).contains(to))throw new IllegalStateException("Invalid job transition: "+from+" -> "+to);}}

@@ -1,0 +1,1 @@
+package dev.jobflow.service; import com.fasterxml.jackson.databind.JsonNode; import dev.jobflow.domain.JobType; public interface JobExecutor {boolean supports(JobType type); JsonNode execute(JsonNode payload) throws JobExecutionException;}

@@ -1,0 +1,17 @@
+spring:
+  application: { name: jobflow }
+  datasource: { url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/jobflow}, username: ${DATABASE_USERNAME:jobflow}, password: ${DATABASE_PASSWORD:jobflow} }
+  jpa: { open-in-view: false, hibernate: { ddl-auto: validate } }
+  flyway: { enabled: true }
+  jackson: { default-property-inclusion: non_null }
+server: { max-http-request-header-size: 16KB }
+jobflow:
+  jwt-secret: ${JWT_SECRET:change-me-in-development-change-me-in-development}
+  jwt-expiry: PT8H
+  worker: { enabled: ${WORKER_ENABLED:true}, poll-delay-ms: ${WORKER_POLL_DELAY_MS:500}, concurrency: ${WORKER_CONCURRENCY:4}, lease-duration: ${WORKER_LEASE_DURATION:PT2M}, max-payload-bytes: ${MAX_PAYLOAD_BYTES:65536} }
+  retry: { initial-delay: PT1S, max-delay: PT5M }
+  rate-limit: { submissions-per-minute: ${SUBMISSIONS_PER_MINUTE:30} }
+management:
+  endpoints: { web: { exposure: { include: health,info,prometheus,metrics } } }
+  endpoint: { health: { probes: { enabled: true }, show-details: when_authorized } }
+springdoc: { swagger-ui: { path: /swagger-ui.html } }

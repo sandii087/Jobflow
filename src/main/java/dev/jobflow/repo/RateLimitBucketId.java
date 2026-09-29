@@ -1,0 +1,1 @@
+package dev.jobflow.repo; import java.io.Serializable; import java.time.Instant; public class RateLimitBucketId implements Serializable { public String subject; public Instant windowStart; public RateLimitBucketId(){} public RateLimitBucketId(String s,Instant w){subject=s;windowStart=w;} }

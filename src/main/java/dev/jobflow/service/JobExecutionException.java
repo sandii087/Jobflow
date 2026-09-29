@@ -1,0 +1,1 @@
+package dev.jobflow.service; public class JobExecutionException extends Exception {private final boolean retryable;private final String code;public JobExecutionException(String code,String message,boolean retryable){super(message);this.code=code;this.retryable=retryable;}public boolean retryable(){return retryable;}public String code(){return code;}}

@@ -1,0 +1,1 @@
+package dev.jobflow.repo; import dev.jobflow.domain.JobAttempt; import java.util.UUID; import org.springframework.data.jpa.repository.JpaRepository; public interface JobAttemptRepository extends JpaRepository<JobAttempt,UUID>{}

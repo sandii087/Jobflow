@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment: { POSTGRES_DB: jobflow, POSTGRES_USER: jobflow, POSTGRES_PASSWORD: jobflow }
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U jobflow -d jobflow"], interval: 5s, timeout: 3s, retries: 15 }
+    ports: ["5432:5432"]
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+  jobflow:
+    build: .
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/jobflow
+      DATABASE_USERNAME: jobflow
+      DATABASE_PASSWORD: jobflow
+      JWT_SECRET: ${JWT_SECRET:?Set a 32+ character JWT_SECRET in your shell}
+    ports: ["8080:8080"]
+    depends_on: { postgres: { condition: service_healthy } }
+volumes: { postgres-data: {} }
